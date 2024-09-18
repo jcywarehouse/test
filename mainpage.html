@@ -35,11 +35,12 @@
         .result-count {
             color: red;
             font-weight: bold;
+            font-size: 24px;
             margin-top: 20px;
         }
         #qr-reader {
-            width: 300px;
-            height: 300px;
+            width: 250px;
+            height: 250px;
             margin-top: 20px;
         }
     </style>
@@ -67,7 +68,7 @@
     <script>
         let workOrderData = {};  // 用來存放從 Google Sheets 獲取的數據
 
-        const API_KEY = 'AIzaSyABHPlKFflpHknURJ21Ftr-2n6M2YTXx3Q';  // 在此處放入你的 API Key
+        const API_KEY = 'AIzaSyABHPlKFflpHknURJ21Ftr-2n6M2YTXx3Q';  // API Key
         const SPREADSHEET_ID = '1WsAf1SD5vpw8vaWUd_-rF550Mc1qoIjaivDs2Gr3gM4';
         const RANGE = '工作表1!A:D'; 
 
@@ -153,8 +154,8 @@
             }
         });
 
-        // 每分鐘重新加載數據
-        setInterval(fetchData, 60000);  // 每 60 秒重新加載數據
+        // 重新加載數據
+        setInterval(fetchData, 30000);  // 重新加載數據
     </script>
 
 </body>
