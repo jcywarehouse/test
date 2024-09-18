@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工單號碼查詢系統</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        label, input {
+            display: block;
+            margin: 10px 0;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 300px;
+        }
+        #color-result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>工單號碼查詢系統</h2>
+    <label for="workOrder">輸入工單號碼：</label>
+    <input type="text" id="workOrder" placeholder="請輸入工單號碼" autofocus>
+
+    <button onclick="searchColor()">查詢顏色</button>
+
+    <div id="color-result"></div>
+
+    <script>
+        let workOrderData = {};
+
+        // 使用 fetch 讀取 JSON 文件
+        fetch('data.json')
+            .then(response => response.json())
+            .then(data => {
+                workOrderData = data; // 將 JSON 文件中的資料賦值給 workOrderData
+            });
+
+        // 查詢顏色的函數
+        function searchColor() {
+            const workOrderInput = document.getElementById('workOrder');
+            const resultDiv = document.getElementById('color-result');
+            const workOrder = workOrderInput.value.trim();
+            
+            if (workOrder in workOrderData) {
+                resultDiv.textContent = `工單號碼 ${workOrder} 的顏色是：${workOrderData[workOrder]}`;
+            } else {
+                resultDiv.textContent = `找不到工單號碼 ${workOrder} 的顏色`;
+            }
+
+            // 查詢完畢後，自動選取工單號碼欄位的內容
+            workOrderInput.select();
+        }
+
+        // 按 Enter 鍵也能進行查詢
+        document.getElementById('workOrder').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                searchColor();
+            }
+        });
+    </script>
+
+</body>
+</html>
