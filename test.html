@@ -37,7 +37,7 @@
         let workOrderData = {};
 
         // 使用 fetch 讀取 txt 文件
-        fetch('data.txt')
+        fetch('test/data.txt')
             .then(response => response.text())
             .then(data => {
                 const lines = data.split('\n');
