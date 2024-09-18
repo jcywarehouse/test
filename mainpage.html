@@ -32,6 +32,11 @@
         .result-text span {
             font-weight: bold;
         }
+        .result-count {
+            color: red;
+            font-weight: bold;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -86,6 +91,10 @@
             
             if (workOrder in workOrderData) {
                 let resultHtml = `<div class="result-header">工單號碼 ${workOrder}</div>`;
+                const count = workOrderData[workOrder].length;
+
+                // 顯示符合資料的筆數
+                resultHtml += `<div class="result-count">符合的資料有 ${count} 筆</div>`;
                 
                 // 顯示所有符合的資料
                 workOrderData[workOrder].forEach(entry => {
