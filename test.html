@@ -48,14 +48,21 @@
 <body>
 
     <h2>出貨資訊查詢系統</h2>
+    
     <label for="workOrder">輸入工單號碼：</label>
+    
+    <!-- 工單號碼輸入框 -->
     <input type="text" id="workOrder" placeholder="請輸入工單號碼" autofocus>
+    
+    <!-- 查詢按鈕 -->
+    <button onclick="searchColor()">查詢</button>
+
+    <!-- QR Code 掃描按鈕 -->
+    <button onclick="startQrCodeScanner()">啟動 QR Code 掃描</button>
 
     <div id="color-result"></div>
 
-    <!-- QR Code 掃描器區域 -->
     <div id="qr-reader"></div>
-    <button onclick="startQrCodeScanner()">啟動 QR Code 掃描</button>
 
     <script>
         let workOrderData = {};  // 用來存放從 Google Sheets 獲取的數據
