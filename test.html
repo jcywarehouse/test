@@ -36,11 +36,17 @@
     <script>
         let workOrderData = {};
 
-        // 使用 fetch 讀取 JSON 文件
-        fetch('data.json')
-            .then(response => response.json())
+        // 使用 fetch 讀取 txt 文件
+        fetch('data.txt')
+            .then(response => response.text())
             .then(data => {
-                workOrderData = data; // 將 JSON 文件中的資料賦值給 workOrderData
+                const lines = data.split('\n');
+                lines.forEach(line => {
+                    const [workOrder, color] = line.split(','); // 使用逗號分隔工單號碼和顏色
+                    if (workOrder && color) {
+                        workOrderData[workOrder.trim()] = color.trim();
+                    }
+                });
             });
 
         // 查詢顏色的函數
