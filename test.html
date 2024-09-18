@@ -21,6 +21,17 @@
             margin-top: 20px;
             font-weight: bold;
         }
+        .result-header {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .result-text {
+            font-size: 24px;
+            margin: 10px 0;
+        }
+        .result-text span {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -37,19 +48,17 @@
         let workOrderData = {};
 
         // 使用 fetch 讀取 txt 文件
-    fetch('data.txt')
-        .then(response => response.text())
-        .then(data => {
-            console.log(data); // 檢查讀取到的 txt 文件內容
-            const lines = data.split('\n');
-            lines.forEach(line => {
-                const [workOrder, color, code] = line.split(','); // 使用逗號分隔工單號碼、顏色和代碼
-                if (workOrder && color && code) {
-                    workOrderData[workOrder.trim()] = { color: color.trim(), code: code.trim() };
-                }
+        fetch('data.txt')
+            .then(response => response.text())
+            .then(data => {
+                const lines = data.split('\n');
+                lines.forEach(line => {
+                    const [workOrder, color, code] = line.split(','); // 使用逗號分隔工單號碼、顏色和代碼
+                    if (workOrder && color && code) {
+                        workOrderData[workOrder.trim()] = { color: color.trim(), code: code.trim() };
+                    }
+                });
             });
-        });
-
 
         // 查詢顏色和代碼的函數
         function searchColor() {
@@ -59,7 +68,11 @@
             
             if (workOrder in workOrderData) {
                 const { color, code } = workOrderData[workOrder];
-                resultDiv.textContent = `工單號碼 ${workOrder} 的顏色是：${color}，代碼是：${code}`;
+                resultDiv.innerHTML = `
+                    <div class="result-header">工單號碼 ${workOrder}</div>
+                    <div class="result-text">顏色是：<span>${color}</span></div>
+                    <div class="result-text">代碼是：<span>${code}</span></div>
+                `;
             } else {
                 resultDiv.textContent = `找不到工單號碼 ${workOrder} 的資料`;
             }
