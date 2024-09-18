@@ -100,7 +100,6 @@
                     // 掃描到的數據自動填入工單號碼輸入框並進行查詢
                     document.getElementById("workOrder").value = qrCodeMessage;
                     searchColor();  // 自動查詢
-                    html5QrCode.stop();  // 停止掃描
                 },
                 errorMessage => {
                     console.warn("QR Code not detected.", errorMessage);
