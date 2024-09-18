@@ -51,19 +51,28 @@
         const SPREADSHEET_ID = '1WsAf1SD5vpw8vaWUd_-rF550Mc1qoIjaivDs2Gr3gM4';
         const RANGE = '工作表1!A:D'; 
 
-        // 使用 fetch 調用 Google Sheets API
-        fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`)
-            .then(response => response.json())
-            .then(data => {
-                const rows = data.values;
-                rows.forEach(row => {
-                    const [abbr, workOrder, color, code] = row;  // 解構 A, B, C, D 列的數據
-                    if (workOrder && color && code) {
-                        workOrderData[workOrder.trim()] = { color: color.trim(), code: code.trim() };
-                    }
-                });
-            })
-            .catch(error => console.error('Error fetching data:', error));
+        function fetchData() {
+            // 使用 fetch 調用 Google Sheets API
+            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`)
+                .then(response => response.json())
+                .then(data => {
+                    workOrderData = {}; // 清除舊的數據
+                    const rows = data.values;
+                    rows.forEach(row => {
+                        const [abbr, workOrder, color, code] = row;  // 解構 A, B, C, D 列的數據
+                        if (workOrder && color && code) {
+                            workOrderData[workOrder.trim()] = { color: color.trim(), code: code.trim() };
+                        }
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        // 每分鐘重新加載數據
+        setInterval(fetchData, 60000); // 每 60,000 毫秒（1 分鐘）重新加載數據
+
+        // 首次加載數據
+        fetchData();
 
         // 查詢顏色和代碼的函數
         function searchColor() {
