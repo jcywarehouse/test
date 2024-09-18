@@ -61,7 +61,11 @@
                     rows.forEach(row => {
                         const [abbr, workOrder, color, code] = row;  // 解構 A, B, C, D 列的數據
                         if (workOrder && color && code) {
-                            workOrderData[workOrder.trim()] = { color: color.trim(), code: code.trim() };
+                            // 如果工單號碼已經存在，將新數據推入數組，否則創建數組
+                            if (!workOrderData[workOrder.trim()]) {
+                                workOrderData[workOrder.trim()] = [];
+                            }
+                            workOrderData[workOrder.trim()].push({ color: color.trim(), code: code.trim() });
                         }
                     });
                 })
@@ -81,12 +85,17 @@
             const workOrder = workOrderInput.value.trim();
             
             if (workOrder in workOrderData) {
-                const { color, code } = workOrderData[workOrder];
-                resultDiv.innerHTML = `
-                    <div class="result-header">工單號碼 ${workOrder}</div>
-                    <div class="result-text">顏色是：<span>${color}</span></div>
-                    <div class="result-text">代碼是：<span>${code}</span></div>
-                `;
+                let resultHtml = `<div class="result-header">工單號碼 ${workOrder}</div>`;
+                
+                // 顯示所有符合的資料
+                workOrderData[workOrder].forEach(entry => {
+                    resultHtml += `
+                        <div class="result-text">顏色是：<span>${entry.color}</span></div>
+                        <div class="result-text">代碼是：<span>${entry.code}</span></div>
+                    `;
+                });
+
+                resultDiv.innerHTML = resultHtml;
             } else {
                 resultDiv.textContent = `找不到工單號碼 ${workOrder} 的資料`;
             }
