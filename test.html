@@ -42,23 +42,24 @@
             .then(data => {
                 const lines = data.split('\n');
                 lines.forEach(line => {
-                    const [workOrder, color] = line.split(','); // 使用逗號分隔工單號碼和顏色
-                    if (workOrder && color) {
-                        workOrderData[workOrder.trim()] = color.trim();
+                    const [workOrder, color, code] = line.split(','); // 使用逗號分隔工單號碼、顏色和代碼
+                    if (workOrder && color && code) {
+                        workOrderData[workOrder.trim()] = { color: color.trim(), code: code.trim() };
                     }
                 });
             });
 
-        // 查詢顏色的函數
+        // 查詢顏色和代碼的函數
         function searchColor() {
             const workOrderInput = document.getElementById('workOrder');
             const resultDiv = document.getElementById('color-result');
             const workOrder = workOrderInput.value.trim();
             
             if (workOrder in workOrderData) {
-                resultDiv.textContent = `工單號碼 ${workOrder} 的顏色是：${workOrderData[workOrder]}`;
+                const { color, code } = workOrderData[workOrder];
+                resultDiv.textContent = `工單號碼 ${workOrder} 的顏色是：${color}，代碼是：${code}`;
             } else {
-                resultDiv.textContent = `找不到工單號碼 ${workOrder} 的顏色`;
+                resultDiv.textContent = `找不到工單號碼 ${workOrder} 的資料`;
             }
 
             // 查詢完畢後，自動選取工單號碼欄位的內容
