@@ -99,7 +99,7 @@
         function startQrCodeScanner() {
             const html5QrCode = new Html5Qrcode("qr-reader");
             html5QrCode.start(
-                { facingMode: "environment", aspectRatio: 1.777 },  // 使用後置攝像頭並調整解析度
+                { facingMode: "environment" },  // 使用後置攝像頭
                 {
                     fps: 20,    // 增加掃描幀率，讓掃描更靈敏
                     qrbox: { width: 300, height: 300 }  // 增加掃描框大小
