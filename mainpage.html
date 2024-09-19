@@ -74,16 +74,14 @@
 
         // 從 Google Sheets 獲取數據
         function fetchData() {
-            // 使用 fetch 調用 Google Sheets API
             fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`)
                 .then(response => response.json())
                 .then(data => {
-                    workOrderData = {}; // 清除舊的數據
+                    workOrderData = {};  // 清除舊數據
                     const rows = data.values;
                     rows.forEach(row => {
-                        const [abbr, workOrder, color, code] = row;  // 解構 A, B, C, D 列的數據
+                        const [abbr, workOrder, color, code] = row;
                         if (workOrder && color && code) {
-                            // 如果工單號碼已經存在，將新數據推入數組，否則創建數組
                             if (!workOrderData[workOrder.trim()]) {
                                 workOrderData[workOrder.trim()] = [];
                             }
@@ -103,8 +101,8 @@
             html5QrCode.start(
                 { facingMode: "environment" },  // 使用後置攝像頭
                 {
-                    fps: 20,    // 每秒 20 幀
-                    qrbox: { width: 270, height: 270 }  // 掃描框大小
+                    fps: 10,    // 每秒 10 幀
+                    qrbox: { width: 250, height: 250 }  // 掃描框大小
                 },
                 qrCodeMessage => {
                     // 掃描到的數據自動填入工單號碼輸入框並進行查詢
