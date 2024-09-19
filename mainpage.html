@@ -68,13 +68,13 @@
     <script>
         let workOrderData = {};  // 用來存放從 Google Sheets 獲取的數據
 
-        const API_KEY = 'API_KEY';  // 在此處放入你的 API Key
+        const API_KEY = 'AIzaSyABHPlKFflpHknURJ21Ftr-2n6M2YTXx3Q';  // API Key
         const SPREADSHEET_ID = '1WsAf1SD5vpw8vaWUd_-rF550Mc1qoIjaivDs2Gr3gM4';
         const RANGE = '工作表1!A:D'; 
 
         // 從 Google Sheets 獲取數據
         function fetchData() {
-            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`)
+            fetch(https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY})
                 .then(response => response.json())
                 .then(data => {
                     workOrderData = {};  // 清除舊數據
@@ -101,8 +101,8 @@
             html5QrCode.start(
                 { facingMode: "environment" },  // 使用後置攝像頭
                 {
-                    fps: 30,    // 掃描幀率
-                    qrbox: { width: 280, height: 280 }  // 掃描框大小
+                    fps: 20,    // 每秒 20 幀
+                    qrbox: { width: 270, height: 270 }  // 掃描框大小
                 },
                 qrCodeMessage => {
                     // 掃描到的數據自動填入工單號碼輸入框並進行查詢
@@ -124,23 +124,23 @@
             const workOrder = workOrderInput.value.trim();
             
             if (workOrder in workOrderData) {
-                let resultHtml = `<div class="result-header">工單號碼 ${workOrder}</div>`;
+                let resultHtml = <div class="result-header">工單號碼 ${workOrder}</div>;
                 const count = workOrderData[workOrder].length;
 
                 // 顯示符合資料的筆數
-                resultHtml += `<div class="result-count">符合的資料有 ${count} 筆</div>`;
+                resultHtml += <div class="result-count">符合的資料有 ${count} 筆</div>;
                 
                 // 顯示所有符合的資料
                 workOrderData[workOrder].forEach(entry => {
-                    resultHtml += `
+                    resultHtml += 
                         <div class="result-text">顏色是：<span>${entry.color}</span></div>
                         <div class="result-text">代碼是：<span>${entry.code}</span></div>
-                    `;
+                    ;
                 });
 
                 resultDiv.innerHTML = resultHtml;
             } else {
-                resultDiv.textContent = `找不到工單號碼 ${workOrder} 的資料`;
+                resultDiv.textContent = 找不到工單號碼 ${workOrder} 的資料;
             }
 
             // 查詢完畢後，自動選取工單號碼欄位的內容
@@ -155,7 +155,7 @@
         });
 
         // 重新加載數據
-        setInterval(fetchData, 30000);  // 每 30 秒重新加載數據
+        setInterval(fetchData, 30000);  // 重新加載數據
     </script>
 
 </body>
