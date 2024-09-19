@@ -68,7 +68,7 @@
     <script>
         let workOrderData = {};  // 用來存放從 Google Sheets 獲取的數據
 
-        const API_KEY = 'AIzaSyABHPlKFflpHknURJ21Ftr-2n6M2YTXx3Q';  // API Key
+        const API_KEY = 'API_KEY';  // 在此處放入你的 API Key
         const SPREADSHEET_ID = '1WsAf1SD5vpw8vaWUd_-rF550Mc1qoIjaivDs2Gr3gM4';
         const RANGE = '工作表1!A:D'; 
 
@@ -99,10 +99,10 @@
         function startQrCodeScanner() {
             const html5QrCode = new Html5Qrcode("qr-reader");
             html5QrCode.start(
-                { facingMode: "environment" },  // 使用後置攝像頭
+                { facingMode: "environment", aspectRatio: 1.777 },  // 使用後置攝像頭並調整解析度
                 {
-                    fps: 10,    // 每秒 10 幀
-                    qrbox: { width: 250, height: 250 }  // 掃描框大小
+                    fps: 20,    // 增加掃描幀率，讓掃描更靈敏
+                    qrbox: { width: 300, height: 300 }  // 增加掃描框大小
                 },
                 qrCodeMessage => {
                     // 掃描到的數據自動填入工單號碼輸入框並進行查詢
@@ -155,7 +155,7 @@
         });
 
         // 重新加載數據
-        setInterval(fetchData, 30000);  // 重新加載數據
+        setInterval(fetchData, 30000);  // 每 30 秒重新加載數據
     </script>
 
 </body>
