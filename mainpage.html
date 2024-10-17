@@ -70,7 +70,7 @@
 
         const API_KEY = 'AIzaSyABHPlKFflpHknURJ21Ftr-2n6M2YTXx3Q';  // API Key
         const SPREADSHEET_ID = '1WsAf1SD5vpw8vaWUd_-rF550Mc1qoIjaivDs2Gr3gM4';
-        const RANGE = '工作表1!A:D'; 
+        const RANGE = '工作表1!A:F';  // 修改範圍，確保涵蓋「板號」及「箱數」
 
         // 從 Google Sheets 獲取數據
         function fetchData() {
@@ -80,12 +80,17 @@
                     workOrderData = {};  // 清除舊數據
                     const rows = data.values;
                     rows.forEach(row => {
-                        const [abbr, workOrder, color, code] = row;
-                        if (workOrder && color && code) {
+                        const [abbr, workOrder, color, code, board, boxes] = row;
+                        if (workOrder && color && code && board && boxes) {
                             if (!workOrderData[workOrder.trim()]) {
                                 workOrderData[workOrder.trim()] = [];
                             }
-                            workOrderData[workOrder.trim()].push({ color: color.trim(), code: code.trim() });
+                            workOrderData[workOrder.trim()].push({
+                                color: color.trim(),
+                                code: code.trim(),
+                                board: board.trim(),
+                                boxes: boxes.trim()
+                            });
                         }
                     });
                 })
@@ -101,7 +106,7 @@
             html5QrCode.start(
                 { facingMode: "environment" },  // 使用後置攝像頭
                 {
-                    fps: 20,    // 每秒 10 幀
+                    fps: 20,    // 每秒 20 幀
                     qrbox: { width: 270, height: 270 }  // 掃描框大小
                 },
                 qrCodeMessage => {
@@ -135,6 +140,8 @@
                     resultHtml += `
                         <div class="result-text">顏色是：<span>${entry.color}</span></div>
                         <div class="result-text">代碼是：<span>${entry.code}</span></div>
+                        <div class="result-text">板號是：<span>${entry.board}</span></div>
+                        <div class="result-text">箱數是：<span>${entry.boxes}</span></div>
                     `;
                 });
 
