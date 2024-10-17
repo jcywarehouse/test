@@ -81,15 +81,15 @@
                     const rows = data.values;
                     rows.forEach(row => {
                         const [abbr, workOrder, color, code, board, boxes] = row;
-                        if (workOrder && color && code && board && boxes) {
+                        if (workOrder && color && code) {  // 只強制要求工單號碼、顏色和代碼有值
                             if (!workOrderData[workOrder.trim()]) {
                                 workOrderData[workOrder.trim()] = [];
                             }
                             workOrderData[workOrder.trim()].push({
                                 color: color.trim(),
                                 code: code.trim(),
-                                board: board.trim(),
-                                boxes: boxes.trim()
+                                board: board ? board.trim() : 'N/A',  // 如果為空白，顯示為 'N/A'
+                                boxes: boxes ? boxes.trim() : 'N/A'   // 如果為空白，顯示為 'N/A'
                             });
                         }
                     });
