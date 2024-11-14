@@ -9,34 +9,49 @@
             font-family: Arial, sans-serif;
             margin: 20px;
         }
+        .container {
+            max-width: 500px;
+            width: 100%;
+        }
+        .search-section {
+            margin-bottom: 20px;
+        }
         label, input {
             display: block;
             margin: 10px 0;
         }
         input[type="text"] {
             padding: 10px;
-            width: 300px;
+            width: 100%;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
         }
         #color-result {
             margin-top: 20px;
-            font-weight: bold;
         }
         .result-header {
             font-size: 20px;
             font-weight: bold;
-        }
-        .result-text {
-            font-size: 24px;
-            margin: 10px 0;
-        }
-        .result-text span {
-            font-weight: bold;
+            margin-bottom: 10px;
         }
         .result-count {
             color: red;
             font-weight: bold;
-            font-size: 24px;
-            margin-top: 20px;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        .result-text {
+            font-size: 18px;
+            margin: 4px 0;  /* 減小上下間距 */
+            display: flex;
+            justify-content: space-between;
+        }
+        .result-text span {
+            font-weight: bold;
+            margin-right: 5px;  /* 減少標籤與數據之間的間隔 */
         }
         #qr-reader {
             width: 300px;
@@ -48,22 +63,19 @@
 </head>
 <body>
 
-    <h2>出貨資訊查詢系統</h2>
-    
-    <label for="workOrder">輸入工單號碼：</label>
-    
-    <!-- 工單號碼輸入框 -->
-    <input type="text" id="workOrder" placeholder="請輸入工單號碼" autofocus>
-    
-    <!-- 查詢按鈕 -->
-    <button onclick="searchColor()">查詢</button>
+    <div class="container">
+        <h2>出貨資訊查詢系統</h2>
+        
+        <div class="search-section">
+            <label for="workOrder">輸入工單號碼：</label>
+            <input type="text" id="workOrder" placeholder="請輸入工單號碼" autofocus>
+            <button onclick="searchColor()">查詢</button>
+            <button onclick="startQrCodeScanner()">啟動 QR Code 掃描</button>
+        </div>
 
-    <!-- QR Code 掃描按鈕 -->
-    <button onclick="startQrCodeScanner()">啟動 QR Code 掃描</button>
-
-    <div id="color-result"></div>
-
-    <div id="qr-reader"></div>
+        <div id="color-result"></div>
+        <div id="qr-reader"></div>
+    </div>
 
     <script>
         let workOrderData = {};  // 用來存放從 Google Sheets 獲取的數據
@@ -135,13 +147,11 @@
                 // 顯示符合資料的筆數
                 resultHtml += `<div class="result-count">符合的資料有 ${count} 筆</div>`;
                 
-                // 顯示所有符合的資料
+                // 顯示所有符合的資料，每行顯示兩項資訊
                 workOrderData[workOrder].forEach(entry => {
                     resultHtml += `
-                        <div class="result-text">顏色是：<span>${entry.color}</span></div>
-                        <div class="result-text">代碼是：<span>${entry.code}</span></div>
-                        <div class="result-text">板號是：<span>${entry.board}</span></div>
-                        <div class="result-text">箱數orKPC是：<span>${entry.boxes}</span></div>
+                        <div class="result-text"><span>顏色：</span>${entry.color} <span>代碼：</span>${entry.code}</div>
+                        <div class="result-text"><span>板號：</span>${entry.board} <span>數量：</span>${entry.boxes}</div>
                     `;
                 });
 
