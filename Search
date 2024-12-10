@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>板號查詢系統</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+        .search-section {
+            margin-bottom: 20px;
+        }
+        label, input {
+            display: block;
+            margin: 10px 0;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 100%;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        #result {
+            margin-top: 20px;
+        }
+        .result-header {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .result-count {
+            color: red;
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>板號查詢系統</h2>
+        
+        <div class="search-section">
+            <label for="boardNumber">輸入板號(關鍵字搜尋)：</label>
+            <input type="text" id="boardNumber" placeholder="請輸入板號關鍵字" autofocus>
+            <button onclick="searchBoard()">查詢</button>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        let sheetData = []; // 用來存放從 Google Sheets 獲取的數據
+
+        const API_KEY = 'AIzaSyABHPlKFflpHknURJ21Ftr-2n6M2YTXx3Q';  // API Key
+        const SPREADSHEET_ID = '1WsAf1SD5vpw8vaWUd_-rF550Mc1qoIjaivDs2Gr3gM4';
+        const RANGE = '工作表1!A:F';  // 確保範圍涵蓋所需的欄位
+
+        // 從 Google Sheets 獲取數據
+        function fetchData() {
+            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`)
+                .then(response => response.json())
+                .then(data => {
+                    sheetData = [];
+                    const rows = data.values;
+                    rows.forEach(row => {
+                        const [abbr, workOrder, color, code, board, boxes] = row;
+                        if (board) { // 確保板號有值
+                            sheetData.push({
+                                abbr: abbr ? abbr.trim() : 'N/A',
+                                workOrder: workOrder ? workOrder.trim() : 'N/A',
+                                board: board.trim(),
+                                boxes: boxes ? boxes.trim() : 'N/A'
+                            });
+                        }
+                    });
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        // 初始化時從 Google Sheets 加載數據
+        fetchData();
+
+        // 查詢板號的函數
+        function searchBoard() {
+            const boardInput = document.getElementById('boardNumber');
+            const resultDiv = document.getElementById('result');
+            const keyword = boardInput.value.trim();
+            
+            if (!keyword) {
+                resultDiv.textContent = '請輸入板號關鍵字進行查詢！';
+                return;
+            }
+
+            const filteredData = sheetData.filter(entry => entry.board.includes(keyword));
+            
+            if (filteredData.length > 0) {
+                let resultHtml = `<div class="result-header">查詢板號關鍵字：${keyword}</div>`;
+                resultHtml += `<div class="result-count">符合的資料有 ${filteredData.length} 筆</div>`;
+                resultHtml += `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>簡稱</th>
+                                <th>工單號碼</th>
+                                <th>板號</th>
+                                <th>箱數</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                filteredData.forEach(entry => {
+                    resultHtml += `
+                        <tr>
+                            <td>${entry.abbr}</td>
+                            <td>${entry.workOrder}</td>
+                            <td>${entry.board}</td>
+                            <td>${entry.boxes}</td>
+                        </tr>
+                    `;
+                });
+
+                resultHtml += `</tbody></table>`;
+                resultDiv.innerHTML = resultHtml;
+            } else {
+                resultDiv.textContent = `找不到與關鍵字 "${keyword}" 相符的板號資料`;
+            }
+
+            // 查詢完畢後，自動選取輸入框的內容
+            boardInput.select();
+        }
+
+        // 按 Enter 鍵也能進行查詢
+        document.getElementById('boardNumber').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                searchBoard();
+            }
+        });
+
+        // 定期重新加載數據
+        setInterval(fetchData, 30000);  // 每 30 秒重新加載數據
+    </script>
+
+</body>
+</html>
