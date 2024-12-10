@@ -58,8 +58,23 @@
             height: 300px;
             margin-top: 20px;
         }
+        .nav-button {
+            background-color: #4CAF50; /* 綠色背景 */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .nav-button:hover {
+            background-color: #45a049; /* 按鈕懸停時的顏色 */
+        }
     </style>
-    <script src="html5-qrcode.min.js"></script>
 </head>
 <body>
 
@@ -71,6 +86,8 @@
             <input type="text" id="workOrder" placeholder="請輸入工單號碼" autofocus>
             <button onclick="searchColor()">查詢</button>
             <button onclick="startQrCodeScanner()">啟動 QR Code 掃描</button>
+            <!-- 新增的按鈕 -->
+            <a href="https://jcywarehouse.github.io/test/Search.html" class="nav-button">板號查詢</a>
         </div>
 
         <div id="color-result"></div>
