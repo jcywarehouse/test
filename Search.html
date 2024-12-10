@@ -63,6 +63,22 @@
         tr:hover {
             background-color: #f1f1f1;
         }
+        .nav-button {
+            background-color: #007BFF; /* 藍色背景 */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .nav-button:hover {
+            background-color: #0056b3; /* 按鈕懸停時的顏色 */
+        }
     </style>
 </head>
 <body>
@@ -74,6 +90,8 @@
             <label for="boardNumber">輸入板號(關鍵字搜尋)：</label>
             <input type="text" id="boardNumber" placeholder="請輸入板號關鍵字" autofocus>
             <button onclick="searchBoard()">查詢</button>
+            <!-- 新增的返回出貨查詢按鈕 -->
+            <a href="https://jcywarehouse.github.io/test/mainpage.html" class="nav-button">返回出貨查詢</a>
         </div>
 
         <div id="result"></div>
