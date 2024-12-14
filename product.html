@@ -9,15 +9,14 @@
 <body>
     <h1>成品快速登記系統</h1>
     <button id="authorizeButton">授權 Google</button>
-    <button id="signOutButton" style="display:none;">登出</button>
     <button id="submitDataButton" style="display:none;">提交資料</button>
     <p id="status"></p>
 
     <script>
-        const CLIENT_ID = '1065056853281-qq2clirmb6i0g6013atmt3u57omvd7eh.apps.googleusercontent.com'; // 您的 Client ID
-        const API_KEY = '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'; // 您的 API Key
+        const CLIENT_ID = '1065056853281-qq2clirmb6i0g6013atmt3u57omvd7eh.apps.googleusercontent.com'; // 替換為您的 Client ID
+        const API_KEY = 'AIzaSyABHPlKFflpHknURJ21Ftr-2n6M2YTXx3Q'; // 替換為您的 API Key
         const SPREADSHEET_ID = '16wsXqiBRpnQpcSZ2cJhOwOK8RheIQ-HLZSMoH3pWj-8'; // 替換為您的試算表 ID
-        const RANGE = '工作表1!A:C'; // 修改為您的工作表名稱與範圍
+        const RANGE = '工作表1!A:C'; // 修改為您的試算表名稱與範圍
         const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
 
         let tokenClient;
@@ -37,29 +36,18 @@
             tokenClient = google.accounts.oauth2.initTokenClient({
                 client_id: CLIENT_ID,
                 scope: SCOPES,
-                callback: '', // 授權完成後的回調函數
-            });
-
-            document.getElementById('authorizeButton').onclick = () => {
-                tokenClient.callback = async (response) => {
+                callback: (response) => {
                     if (response.error) {
-                        throw response;
+                        document.getElementById('status').textContent = '授權失敗';
+                        console.error(response.error);
+                        return;
                     }
                     document.getElementById('submitDataButton').style.display = 'block';
                     document.getElementById('authorizeButton').style.display = 'none';
-                    document.getElementById('signOutButton').style.display = 'block';
-                };
+                },
+            });
 
-                tokenClient.requestAccessToken();
-            };
-
-            document.getElementById('signOutButton').onclick = () => {
-                google.accounts.oauth2.revoke(tokenClient.getAccessToken());
-                document.getElementById('authorizeButton').style.display = 'block';
-                document.getElementById('signOutButton').style.display = 'none';
-                document.getElementById('submitDataButton').style.display = 'none';
-            };
-
+            document.getElementById('authorizeButton').onclick = () => tokenClient.requestAccessToken();
             document.getElementById('submitDataButton').onclick = writeToSheet;
         }
 
@@ -70,7 +58,7 @@
                 valueInputOption: 'USER_ENTERED',
                 resource: {
                     values: [
-                        ['測試料號', '測試棧板標', '測試未滿板數'], // 替換為實際數據
+                        ['測試料號', '測試棧板標', '測試未滿板數'], // 替換為您的數據
                     ],
                 },
             };
