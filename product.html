@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成品快速登記系統</title>
+</head>
+<body>
+    <h1>成品快速登記系統</h1>
+    <form id="entryForm">
+        <label for="materialNumber">料號:</label>
+        <input type="text" id="materialNumber" required><br><br>
+        
+        <label for="palletNumber">棧板標:</label>
+        <input type="text" id="palletNumber" required><br><br>
+        
+        <label for="partialNumber">未滿板數:</label>
+        <input type="number" id="partialNumber"><br><br>
+        
+        <button type="submit">提交</button>
+    </form>
+    
+    <p id="status"></p>
+
+    <script>
+        const scriptURL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
+        
+        document.getElementById('entryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const materialNumber = document.getElementById('materialNumber').value;
+            const palletNumber = document.getElementById('palletNumber').value;
+            const partialNumber = document.getElementById('partialNumber').value || null;
+
+            const formData = new FormData();
+            formData.append('料號', materialNumber);
+            formData.append('棧板標', palletNumber);
+            if (partialNumber !== null) {
+                formData.append('未滿板數', partialNumber);
+            }
+
+            const statusElement = document.getElementById('status');
+
+            try {
+                const response = await fetch(scriptURL, { method: 'POST', body: formData });
+                const result = await response.json();
+
+                if (result.success) {
+                    statusElement.innerText = "資料已成功提交！";
+                } else {
+                    statusElement.innerText = "提交失敗，請稍後再試。";
+                }
+            } catch (error) {
+                console.error("Error submitting form data:", error);
+                statusElement.innerText = "發生錯誤，請稍後再試。";
+            }
+        });
+    </script>
+</body>
+</html>
