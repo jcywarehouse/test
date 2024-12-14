@@ -3,93 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>成品快速登記系統</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            max-width: 400px;
-        }
-        label, input, button {
-            display: block;
-            width: 100%;
-            margin: 10px 0;
-        }
-        input, button {
-            padding: 10px;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
+    <title>Google Sheets 登記系統</title>
+    <script src="https://apis.google.com/js/api.js"></script>
 </head>
 <body>
     <h1>成品快速登記系統</h1>
-    <form id="entryForm">
-        <label for="material">料號：</label>
-        <input type="text" id="material" placeholder="請輸入料號" required>
-
-        <label for="pallet">棧板標：</label>
-        <input type="text" id="pallet" placeholder="請輸入棧板標" required>
-
-        <label for="partial">未滿板數：</label>
-        <input type="number" id="partial" placeholder="若無則留空">
-
-        <button type="submit">提交</button>
-    </form>
+    <button id="authorizeButton">授權 Google</button>
+    <button id="signOutButton" style="display:none;">登出</button>
+    <button id="submitDataButton" style="display:none;">提交資料</button>
     <p id="status"></p>
 
     <script>
-        const API_KEY = 'AIzaSyABHPlKFflpHknURJ21Ftr-2n6M2YTXx3Q'; // 替換為您的 API Key
+        const CLIENT_ID = '1065056853281-qq2clirmb6i0g6013atmt3u57omvd7eh.apps.googleusercontent.com'; // 您的 Client ID
+        const API_KEY = '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'; // 您的 API Key
         const SPREADSHEET_ID = '16wsXqiBRpnQpcSZ2cJhOwOK8RheIQ-HLZSMoH3pWj-8'; // 替換為您的試算表 ID
-        const RANGE = '工作表1!A:C'; // 工作表名稱
+        const RANGE = '工作表1!A:C'; // 修改為您的工作表名稱與範圍
+        const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
 
-        document.getElementById('entryForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        let tokenClient;
 
-            const material = document.getElementById('material').value.trim();
-            const pallet = document.getElementById('pallet').value.trim();
-            const partial = document.getElementById('partial').value.trim() || ''; // 如果未填寫，保持空白
+        function handleClientLoad() {
+            gapi.load('client', initClient);
+        }
 
-            const statusElement = document.getElementById('status');
+        async function initClient() {
+            await gapi.client.init({
+                apiKey: API_KEY,
+                discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+                clientId: CLIENT_ID,
+                scope: SCOPES,
+            });
 
-            // 組裝請求內容
-            const requestBody = {
-                values: [[material, pallet, partial]]
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: CLIENT_ID,
+                scope: SCOPES,
+                callback: '', // 授權完成後的回調函數
+            });
+
+            document.getElementById('authorizeButton').onclick = () => {
+                tokenClient.callback = async (response) => {
+                    if (response.error) {
+                        throw response;
+                    }
+                    document.getElementById('submitDataButton').style.display = 'block';
+                    document.getElementById('authorizeButton').style.display = 'none';
+                    document.getElementById('signOutButton').style.display = 'block';
+                };
+
+                tokenClient.requestAccessToken();
+            };
+
+            document.getElementById('signOutButton').onclick = () => {
+                google.accounts.oauth2.revoke(tokenClient.getAccessToken());
+                document.getElementById('authorizeButton').style.display = 'block';
+                document.getElementById('signOutButton').style.display = 'none';
+                document.getElementById('submitDataButton').style.display = 'none';
+            };
+
+            document.getElementById('submitDataButton').onclick = writeToSheet;
+        }
+
+        async function writeToSheet() {
+            const request = {
+                spreadsheetId: SPREADSHEET_ID,
+                range: RANGE,
+                valueInputOption: 'USER_ENTERED',
+                resource: {
+                    values: [
+                        ['測試料號', '測試棧板標', '測試未滿板數'], // 替換為實際數據
+                    ],
+                },
             };
 
             try {
-                // 呼叫 Google Sheets API 寫入資料
-                const response = await fetch(
-                    `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}:append?valueInputOption=USER_ENTERED&key=${API_KEY}`,
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(requestBody),
-                    }
-                );
-
-                if (response.ok) {
-                    statusElement.textContent = "資料已成功提交！";
-                    document.getElementById('entryForm').reset();
-                } else {
-                    const errorData = await response.json();
-                    console.error("Error:", errorData);
-                    statusElement.textContent = "提交失敗，請檢查設定。";
-                }
+                const response = await gapi.client.sheets.spreadsheets.values.append(request);
+                document.getElementById('status').textContent = '資料已成功提交！';
             } catch (error) {
-                console.error("Request failed:", error);
-                statusElement.textContent = "發生錯誤，請稍後再試。";
+                document.getElementById('status').textContent = `提交失敗：${error.result.error.message}`;
             }
-        });
+        }
+
+        document.addEventListener('DOMContentLoaded', handleClientLoad);
     </script>
 </body>
 </html>
