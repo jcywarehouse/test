@@ -4,55 +4,90 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>成品快速登記系統</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            max-width: 400px;
+        }
+        label, input, button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+        }
+        input, button {
+            padding: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
     <h1>成品快速登記系統</h1>
     <form id="entryForm">
-        <label for="materialNumber">料號:</label>
-        <input type="text" id="materialNumber" required><br><br>
-        
-        <label for="palletNumber">棧板標:</label>
-        <input type="text" id="palletNumber" required><br><br>
-        
-        <label for="partialNumber">未滿板數:</label>
-        <input type="number" id="partialNumber"><br><br>
-        
+        <label for="material">料號：</label>
+        <input type="text" id="material" placeholder="請輸入料號" required>
+
+        <label for="pallet">棧板標：</label>
+        <input type="text" id="pallet" placeholder="請輸入棧板標" required>
+
+        <label for="partial">未滿板數：</label>
+        <input type="number" id="partial" placeholder="若無則留空">
+
         <button type="submit">提交</button>
     </form>
-    
     <p id="status"></p>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
-        
+        const API_KEY = 'AIzaSyABHPlKFflpHknURJ21Ftr-2n6M2YTXx3Q'; // 替換為您的 API Key
+        const SPREADSHEET_ID = '16wsXqiBRpnQpcSZ2cJhOwOK8RheIQ-HLZSMoH3pWj-8'; // 替換為您的試算表 ID
+        const RANGE = '成品庫存'; // 工作表名稱
+
         document.getElementById('entryForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const materialNumber = document.getElementById('materialNumber').value;
-            const palletNumber = document.getElementById('palletNumber').value;
-            const partialNumber = document.getElementById('partialNumber').value || null;
-
-            const formData = new FormData();
-            formData.append('料號', materialNumber);
-            formData.append('棧板標', palletNumber);
-            if (partialNumber !== null) {
-                formData.append('未滿板數', partialNumber);
-            }
+            const material = document.getElementById('material').value.trim();
+            const pallet = document.getElementById('pallet').value.trim();
+            const partial = document.getElementById('partial').value.trim() || ''; // 如果未填寫，保持空白
 
             const statusElement = document.getElementById('status');
 
-            try {
-                const response = await fetch(scriptURL, { method: 'POST', body: formData });
-                const result = await response.json();
+            // 組裝請求內容
+            const requestBody = {
+                values: [[material, pallet, partial]]
+            };
 
-                if (result.success) {
-                    statusElement.innerText = "資料已成功提交！";
+            try {
+                // 呼叫 Google Sheets API 寫入資料
+                const response = await fetch(
+                    `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}:append?valueInputOption=USER_ENTERED&key=${API_KEY}`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(requestBody),
+                    }
+                );
+
+                if (response.ok) {
+                    statusElement.textContent = "資料已成功提交！";
+                    document.getElementById('entryForm').reset();
                 } else {
-                    statusElement.innerText = "提交失敗，請稍後再試。";
+                    const errorData = await response.json();
+                    console.error("Error:", errorData);
+                    statusElement.textContent = "提交失敗，請檢查設定。";
                 }
             } catch (error) {
-                console.error("Error submitting form data:", error);
-                statusElement.innerText = "發生錯誤，請稍後再試。";
+                console.error("Request failed:", error);
+                statusElement.textContent = "發生錯誤，請稍後再試。";
             }
         });
     </script>
