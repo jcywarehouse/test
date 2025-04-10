@@ -11,57 +11,51 @@
     }
 
     .container {
-      max-width: 600px;
-      margin: auto;
+      max-width: 500px;
+      width: 100%;
     }
 
     .search-section {
       margin-bottom: 20px;
     }
 
-    .input-row {
-      display: flex;
-      margin-bottom: 10px;
+    label, input {
+      display: block;
+      margin: 10px 0;
     }
 
-    .input-row input[type="text"] {
-      flex: 1;
+    input[type="text"] {
       padding: 10px;
+      width: 100%;
       box-sizing: border-box;
     }
 
-    .button-row {
-      display: flex;
-      gap: 6px;
-      flex-wrap: nowrap;
-      justify-content: space-between;
-    }
-
-    .button-row button,
-    .button-row a {
-      flex: 1 1 0;
-      padding: 10px;
-      font-size: 16px;
-      text-align: center;
-      border: none;
-      border-radius: 5px;
+    button {
+      padding: 10px 20px;
+      margin: 5px 0;
       cursor: pointer;
+      width: 100%;
       box-sizing: border-box;
-      min-width: 0;
     }
 
-    .button-row a {
-      text-decoration: none;
+    .nav-button {
       background-color: #4CAF50;
       color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+      width: 100%;
+      box-sizing: border-box;
     }
 
-    .button-row a:hover {
+    .nav-button:hover {
       background-color: #45a049;
-    }
-
-    .button-row button {
-      background-color: #ddd;
     }
 
     #color-result {
@@ -71,13 +65,13 @@
     .result-header {
       font-size: 20px;
       font-weight: bold;
-      margin-bottom: 5px;
+      margin-bottom: 10px;
     }
 
     .result-count {
       color: red;
       font-weight: bold;
-      font-size: 18px;
+      font-size: 20px;
       margin-bottom: 15px;
     }
 
@@ -118,25 +112,9 @@
     }
 
     #qr-reader {
-      width: 100%;
-      max-width: 300px;
+      width: 300px;
       height: 300px;
       margin-top: 20px;
-    }
-
-    @media (max-width: 480px) {
-      .input-row {
-        flex-direction: column;
-      }
-
-      .button-row {
-        flex-direction: column;
-      }
-
-      .button-row button,
-      .button-row a {
-        width: 100%;
-      }
     }
   </style>
   <script src="https://unpkg.com/html5-qrcode"></script>
@@ -147,15 +125,11 @@
   <h2>出貨資訊查詢系統</h2>
 
   <div class="search-section">
-    <div class="input-row">
-      <input type="text" id="workOrder" placeholder="請輸入工單號碼" autofocus>
-    </div>
-
-    <div class="button-row">
-      <a href="https://jcywarehouse.github.io/test/Search.html" class="nav-button">板號查詢</a>
-      <button onclick="searchColor()">查詢</button>
-      <button onclick="startQrCodeScanner()">啟用 QR</button>
-    </div>
+    <label for="workOrder">輸入工單號碼：</label>
+    <input type="text" id="workOrder" placeholder="請輸入工單號碼" autofocus>
+    <button onclick="searchColor()">查詢</button>
+    <button onclick="startQrCodeScanner()">啟動 QR Code 掃描</button>
+    <a href="https://jcywarehouse.github.io/test/Search.html" class="nav-button">板號查詢</a>
   </div>
 
   <div id="color-result"></div>
@@ -233,8 +207,8 @@
     }
   });
 
-  // ✅ 新增：當輸入滿 13 碼，自動 blur 並查詢
-  document.getElementById('workOrder').addEventListener('input', function(e) {
+  // PDA 掃碼自動查詢 + 關鍵盤關閉
+  document.getElementById('workOrder').addEventListener('input', function (e) {
     const input = e.target;
     if (input.value.length === 13) {
       setTimeout(() => {
