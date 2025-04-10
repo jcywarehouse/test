@@ -19,50 +19,47 @@
       margin-bottom: 20px;
     }
 
-    label, input {
-      display: block;
-      margin: 10px 0;
-    }
-
-    input[type="text"] {
-      padding: 10px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    .button-group {
+    .input-row {
       display: flex;
-      flex-wrap: wrap;
       gap: 10px;
+      margin-bottom: 10px;
     }
 
-    .button-group button,
-    .button-group a {
-      padding: 10px;
+    .input-row input[type="text"] {
       flex: 1;
-      min-width: 120px;
+      padding: 10px;
       box-sizing: border-box;
-      text-align: center;
-      cursor: pointer;
-      border: none;
-      border-radius: 5px;
-    }
-
-    .button-group a {
-      text-decoration: none;
-    }
-
-    button {
-      background-color: #ddd;
     }
 
     .nav-button {
       background-color: #4CAF50;
       color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      cursor: pointer;
+      white-space: nowrap;
+      text-decoration: none;
     }
 
     .nav-button:hover {
       background-color: #45a049;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .button-group button {
+      flex: 1;
+      min-width: 120px;
+      padding: 10px;
+      background-color: #ddd;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
     }
 
     #color-result {
@@ -105,9 +102,8 @@
       display: flex;
     }
 
-    .result-cell.full-width {
-      width: 100%;
-      justify-content: space-between;
+    .result-cell.double-width {
+      width: 66.66%;
     }
 
     .result-cell.align-right {
@@ -127,9 +123,11 @@
     }
 
     @media (max-width: 480px) {
-      .result-cell {
-        font-size: 16px;
-        padding: 8px;
+      .input-row {
+        flex-direction: column;
+      }
+      .button-group {
+        flex-direction: column;
       }
     }
   </style>
@@ -137,117 +135,118 @@
 </head>
 <body>
 
-<div class="container">
-  <h2>出貨資訊查詢系統</h2>
+  <div class="container">
+    <h2>出貨資訊查詢系統</h2>
 
-  <div class="search-section">
-    <label for="workOrder">輸入工單號碼：</label>
-    <input type="text" id="workOrder" placeholder="請輸入工單號碼" autofocus>
+    <div class="search-section">
+      <div class="input-row">
+        <input type="text" id="workOrder" placeholder="請輸入工單號碼" autofocus>
+        <a href="https://jcywarehouse.github.io/test/Search.html" class="nav-button">板號查詢</a>
+      </div>
 
-    <div class="button-group">
-      <button onclick="searchColor()">查詢</button>
-      <button onclick="startQrCodeScanner()">啟動 QR Code 掃描</button>
-      <a href="https://jcywarehouse.github.io/test/Search.html" class="nav-button">板號查詢</a>
+      <div class="button-group">
+        <button onclick="searchColor()">查詢</button>
+        <button onclick="startQrCodeScanner()">啟動 QR Code 掃描</button>
+      </div>
     </div>
+
+    <div id="color-result"></div>
+    <div id="qr-reader"></div>
   </div>
 
-  <div id="color-result"></div>
-  <div id="qr-reader"></div>
-</div>
+  <script>
+    let workOrderData = {};
+    const API_KEY = 'AIzaSyABHPlKFflpHknURJ21Ftr-2n6M2YTXx3Q';
+    const SPREADSHEET_ID = '1WsAf1SD5vpw8vaWUd_-rF550Mc1qoIjaivDs2Gr3gM4';
+    const RANGE = '工作表1!A:G';
 
-<script>
-  let workOrderData = {};
-  const API_KEY = 'AIzaSyABHPlKFflpHknURJ21Ftr-2n6M2YTXx3Q';
-  const SPREADSHEET_ID = '1WsAf1SD5vpw8vaWUd_-rF550Mc1qoIjaivDs2Gr3gM4';
-  const RANGE = '工作表1!A:G';
-
-  function fetchData() {
-    fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`)
-      .then(response => response.json())
-      .then(data => {
-        workOrderData = {};
-        const rows = data.values;
-        rows.forEach(row => {
-          const [abbr, workOrder, color, code, board, boxes, boards] = row;
-          if (workOrder && color && code) {
-            if (!workOrderData[workOrder.trim()]) {
-              workOrderData[workOrder.trim()] = [];
+    function fetchData() {
+      fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`)
+        .then(response => response.json())
+        .then(data => {
+          workOrderData = {};
+          const rows = data.values;
+          rows.forEach(row => {
+            const [abbr, workOrder, color, code, board, boxes, boards] = row;
+            if (workOrder && color && code) {
+              if (!workOrderData[workOrder.trim()]) {
+                workOrderData[workOrder.trim()] = [];
+              }
+              workOrderData[workOrder.trim()].push({
+                color: color.trim(),
+                code: code.trim(),
+                board: board ? board.trim() : 'N/A',
+                boxes: boxes ? boxes.trim() : 'N/A',
+                boards: boards ? boards.trim() : ''
+              });
             }
-            workOrderData[workOrder.trim()].push({
-              color: color.trim(),
-              code: code.trim(),
-              board: board ? board.trim() : 'N/A',
-              boxes: boxes ? boxes.trim() : 'N/A',
-              boards: boards ? boards.trim() : ''
-            });
-          }
-        });
-      })
-      .catch(error => console.error('Error fetching data:', error));
-  }
+          });
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    }
 
-  fetchData();
+    fetchData();
 
-  function searchColor() {
-    const workOrderInput = document.getElementById('workOrder');
-    const resultDiv = document.getElementById('color-result');
-    const workOrder = workOrderInput.value.trim();
+    function searchColor() {
+      const workOrderInput = document.getElementById('workOrder');
+      const resultDiv = document.getElementById('color-result');
+      const workOrder = workOrderInput.value.trim();
 
-    if (workOrder in workOrderData) {
-      let resultHtml = `<div class="result-header">工單號碼 ${workOrder}</div>`;
-      const count = workOrderData[workOrder].length;
-      resultHtml += `<div class="result-count">符合的資料有 ${count} 筆</div>`;
+      if (workOrder in workOrderData) {
+        let resultHtml = `<div class="result-header">工單號碼 ${workOrder}</div>`;
+        const count = workOrderData[workOrder].length;
+        resultHtml += `<div class="result-count">符合的資料有 ${count} 筆</div>`;
 
-      workOrderData[workOrder].forEach(entry => {
-        resultHtml += `
-          <div class="data-block">
-            <div class="result-table">
-              <div class="result-cell"><span>顏色：</span>${entry.color}</div>
-              <div class="result-cell"><span>代碼：</span>${entry.code}</div>
-              <div class="result-cell"><span>板數：</span>${entry.boards}</div>
-              <div class="result-cell full-width"><span>板號：</span>${entry.board}</div>
-              <div class="result-cell full-width align-right"><span>數量：</span>${entry.boxes}</div>
+        workOrderData[workOrder].forEach(entry => {
+          resultHtml += `
+            <div class="data-block">
+              <div class="result-table">
+                <div class="result-cell"><span>顏色：</span>${entry.color}</div>
+                <div class="result-cell"><span>代碼：</span>${entry.code}</div>
+                <div class="result-cell"><span>板數：</span>${entry.boards}</div>
+                <div class="result-cell double-width"><span>板號：</span>${entry.board}</div>
+                <div class="result-cell align-right"><span>數量：</span>${entry.boxes}</div>
+              </div>
             </div>
-          </div>
-        `;
-      });
+          `;
+        });
 
-      resultDiv.innerHTML = resultHtml;
-    } else {
-      resultDiv.textContent = `找不到工單號碼 ${workOrder} 的資料`;
-    }
-
-    workOrderInput.select();
-  }
-
-  document.getElementById('workOrder').addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
-      searchColor();
-    }
-  });
-
-  function startQrCodeScanner() {
-    const html5QrCode = new Html5Qrcode("qr-reader");
-    html5QrCode.start(
-      { facingMode: "environment" },
-      {
-        fps: 20,
-        qrbox: { width: 270, height: 270 }
-      },
-      qrCodeMessage => {
-        document.getElementById("workOrder").value = qrCodeMessage;
-        searchColor();
-      },
-      errorMessage => {
-        console.warn("QR Code not detected.", errorMessage);
+        resultDiv.innerHTML = resultHtml;
+      } else {
+        resultDiv.textContent = `找不到工單號碼 ${workOrder} 的資料`;
       }
-    ).catch(err => {
-      console.error("QR Code scanning failed.", err);
-    });
-  }
 
-  setInterval(fetchData, 30000);
-</script>
+      workOrderInput.select();
+    }
+
+    document.getElementById('workOrder').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        searchColor();
+      }
+    });
+
+    function startQrCodeScanner() {
+      const html5QrCode = new Html5Qrcode("qr-reader");
+      html5QrCode.start(
+        { facingMode: "environment" },
+        {
+          fps: 20,
+          qrbox: { width: 270, height: 270 }
+        },
+        qrCodeMessage => {
+          document.getElementById("workOrder").value = qrCodeMessage;
+          searchColor();
+        },
+        errorMessage => {
+          console.warn("QR Code not detected.", errorMessage);
+        }
+      ).catch(err => {
+        console.error("QR Code scanning failed.", err);
+      });
+    }
+
+    setInterval(fetchData, 30000);
+  </script>
 
 </body>
 </html>
