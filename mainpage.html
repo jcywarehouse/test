@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -10,7 +10,7 @@
             margin: 20px;
         }
         .container {
-            max-width: 500px;
+            max-width: 600px;
             width: 100%;
         }
         .search-section {
@@ -35,23 +35,37 @@
         .result-header {
             font-size: 20px;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
         .result-count {
             color: red;
             font-weight: bold;
-            font-size: 20px;
+            font-size: 18px;
             margin-bottom: 15px;
         }
-        .result-text {
-            font-size: 18px;
-            margin: 4px 0;  /* 減小上下間距 */
-            display: flex;
-            justify-content: space-between;
+        .data-block {
+            border: 1px solid black;
+            margin-bottom: 10px;
+            padding: 0;
         }
-        .result-text span {
+        .result-table {
+            display: flex;
+            flex-wrap: wrap;
+            border-top: 1px solid black;
+            border-left: 1px solid black;
+        }
+        .result-cell {
+            width: 33.33%;
+            padding: 10px;
+            box-sizing: border-box;
+            font-size: 18px;
+            border-right: 1px solid black;
+            border-bottom: 1px solid black;
+            display: flex;
+        }
+        .result-cell span {
             font-weight: bold;
-            margin-right: 5px;  /* 減少標籤與數據之間的間隔 */
+            margin-right: 5px;
         }
         #qr-reader {
             width: 300px;
@@ -59,139 +73,133 @@
             margin-top: 20px;
         }
         .nav-button {
-            background-color: #4CAF50; /* 綠色背景 */
+            background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 5px;
             padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
             font-size: 16px;
             margin-top: 10px;
             cursor: pointer;
         }
         .nav-button:hover {
-            background-color: #45a049; /* 按鈕懸停時的顏色 */
+            background-color: #45a049;
         }
     </style>
-    <script src="html5-qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
 
-    <div class="container">
-        <h2>出貨資訊查詢系統</h2>
-        
-        <div class="search-section">
-            <label for="workOrder">輸入工單號碼：</label>
-            <input type="text" id="workOrder" placeholder="請輸入工單號碼" autofocus>
-            <button onclick="searchColor()">查詢</button>
-            <button onclick="startQrCodeScanner()">啟動 QR Code 掃描</button>
-            <!-- 新增的按鈕 -->
-            <a href="https://jcywarehouse.github.io/test/Search.html" class="nav-button">板號查詢</a>
-        </div>
+<div class="container">
+    <h2>出貨資訊查詢系統</h2>
 
-        <div id="color-result"></div>
-        <div id="qr-reader"></div>
+    <div class="search-section">
+        <label for="workOrder">輸入工單號碼：</label>
+        <input type="text" id="workOrder" placeholder="請輸入工單號碼" autofocus>
+        <button onclick="searchColor()">查詢</button>
+        <button onclick="startQrCodeScanner()">啟動 QR Code 掃描</button>
+        <a href="https://jcywarehouse.github.io/test/Search.html" class="nav-button">板號查詢</a>
     </div>
 
-    <script>
-        let workOrderData = {};  // 用來存放從 Google Sheets 獲取的數據
+    <div id="color-result"></div>
+    <div id="qr-reader"></div>
+</div>
 
-        const API_KEY = 'AIzaSyABHPlKFflpHknURJ21Ftr-2n6M2YTXx3Q';  // API Key
-        const SPREADSHEET_ID = '1WsAf1SD5vpw8vaWUd_-rF550Mc1qoIjaivDs2Gr3gM4';
-        const RANGE = '工作表1!A:F';  // 修改範圍，確保涵蓋「板號」及「箱數」
+<script>
+    let workOrderData = {};
 
-        // 從 Google Sheets 獲取數據
-        function fetchData() {
-            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`)
-                .then(response => response.json())
-                .then(data => {
-                    workOrderData = {};  // 清除舊數據
-                    const rows = data.values;
-                    rows.forEach(row => {
-                        const [abbr, workOrder, color, code, board, boxes] = row;
-                        if (workOrder && color && code) {  // 只強制要求工單號碼、顏色和代碼有值
-                            if (!workOrderData[workOrder.trim()]) {
-                                workOrderData[workOrder.trim()] = [];
-                            }
-                            workOrderData[workOrder.trim()].push({
-                                color: color.trim(),
-                                code: code.trim(),
-                                board: board ? board.trim() : 'N/A',  // 如果為空白，顯示為 'N/A'
-                                boxes: boxes ? boxes.trim() : 'N/A'   // 如果為空白，顯示為 'N/A'
-                            });
+    const API_KEY = 'AIzaSyABHPlKFflpHknURJ21Ftr-2n6M2YTXx3Q';
+    const SPREADSHEET_ID = '1WsAf1SD5vpw8vaWUd_-rF550Mc1qoIjaivDs2Gr3gM4';
+    const RANGE = '工作表1!A:G';
+
+    function fetchData() {
+        fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`)
+            .then(response => response.json())
+            .then(data => {
+                workOrderData = {};
+                const rows = data.values;
+                rows.forEach(row => {
+                    const [abbr, workOrder, color, code, board, boxes, boards] = row;
+                    if (workOrder && color && code) {
+                        if (!workOrderData[workOrder.trim()]) {
+                            workOrderData[workOrder.trim()] = [];
                         }
-                    });
-                })
-                .catch(error => console.error('Error fetching data:', error));
-        }
-
-        // 初始化時從 Google Sheets 加載數據
-        fetchData();
-
-        // QR Code 掃描邏輯
-        function startQrCodeScanner() {
-            const html5QrCode = new Html5Qrcode("qr-reader");
-            html5QrCode.start(
-                { facingMode: "environment" },  // 使用後置攝像頭
-                {
-                    fps: 20,    // 每秒 20 幀
-                    qrbox: { width: 270, height: 270 }  // 掃描框大小
-                },
-                qrCodeMessage => {
-                    // 掃描到的數據自動填入工單號碼輸入框並進行查詢
-                    document.getElementById("workOrder").value = qrCodeMessage;
-                    searchColor();  // 自動查詢
-                },
-                errorMessage => {
-                    console.warn("QR Code not detected.", errorMessage);
-                }
-            ).catch(err => {
-                console.error("QR Code scanning failed.", err);
-            });
-        }
-
-        // 查詢顏色和代碼的函數
-        function searchColor() {
-            const workOrderInput = document.getElementById('workOrder');
-            const resultDiv = document.getElementById('color-result');
-            const workOrder = workOrderInput.value.trim();
-            
-            if (workOrder in workOrderData) {
-                let resultHtml = `<div class="result-header">工單號碼 ${workOrder}</div>`;
-                const count = workOrderData[workOrder].length;
-
-                // 顯示符合資料的筆數
-                resultHtml += `<div class="result-count">符合的資料有 ${count} 筆</div>`;
-                
-                // 顯示所有符合的資料，每行顯示兩項資訊
-                workOrderData[workOrder].forEach(entry => {
-                    resultHtml += `
-                        <div class="result-text"><span>顏色：</span>${entry.color} <span>代碼：</span>${entry.code}</div>
-                        <div class="result-text"><span>板號：</span>${entry.board} <span>數量：</span>${entry.boxes}</div>
-                    `;
+                        workOrderData[workOrder.trim()].push({
+                            color: color.trim(),
+                            code: code.trim(),
+                            board: board ? board.trim() : 'N/A',
+                            boxes: boxes ? boxes.trim() : 'N/A',
+                            boards: boards ? boards.trim() : ''
+                        });
+                    }
                 });
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    }
 
-                resultDiv.innerHTML = resultHtml;
-            } else {
-                resultDiv.textContent = `找不到工單號碼 ${workOrder} 的資料`;
-            }
+    fetchData();
 
-            // 查詢完畢後，自動選取工單號碼欄位的內容
-            workOrderInput.select();
+    function searchColor() {
+        const workOrderInput = document.getElementById('workOrder');
+        const resultDiv = document.getElementById('color-result');
+        const workOrder = workOrderInput.value.trim();
+
+        if (workOrder in workOrderData) {
+            let resultHtml = `<div class="result-header">工單號碼 ${workOrder}</div>`;
+            const count = workOrderData[workOrder].length;
+            resultHtml += `<div class="result-count">符合的資料有 ${count} 筆</div>`;
+
+            workOrderData[workOrder].forEach(entry => {
+                resultHtml += `
+                    <div class="data-block">
+                        <div class="result-table">
+                            <div class="result-cell"><span>顏色：</span>${entry.color}</div>
+                            <div class="result-cell"><span>代碼：</span>${entry.code}</div>
+                            <div class="result-cell"><span>板數：</span>${entry.boards}</div>
+                            <div class="result-cell"><span>板號：</span>${entry.board}</div>
+                            <div class="result-cell"><span>數量：</span>${entry.boxes}</div>
+                            <div class="result-cell"></div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            resultDiv.innerHTML = resultHtml;
+        } else {
+            resultDiv.textContent = `找不到工單號碼 ${workOrder} 的資料`;
         }
 
-        // 按 Enter 鍵也能進行查詢
-        document.getElementById('workOrder').addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                searchColor();
-            }
-        });
+        workOrderInput.select();
+    }
 
-        // 重新加載數據
-        setInterval(fetchData, 30000);  // 重新加載數據
-    </script>
+    document.getElementById('workOrder').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            searchColor();
+        }
+    });
+
+    function startQrCodeScanner() {
+        const html5QrCode = new Html5Qrcode("qr-reader");
+        html5QrCode.start(
+            { facingMode: "environment" },
+            {
+                fps: 20,
+                qrbox: { width: 270, height: 270 }
+            },
+            qrCodeMessage => {
+                document.getElementById("workOrder").value = qrCodeMessage;
+                searchColor();
+            },
+            errorMessage => {
+                console.warn("QR Code not detected.", errorMessage);
+            }
+        ).catch(err => {
+            console.error("QR Code scanning failed.", err);
+        });
+    }
+
+    setInterval(fetchData, 30000);
+</script>
 
 </body>
 </html>
