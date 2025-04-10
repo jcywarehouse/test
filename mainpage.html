@@ -21,7 +21,6 @@
 
     .input-row {
       display: flex;
-      gap: 10px;
       margin-bottom: 10px;
     }
 
@@ -33,14 +32,14 @@
 
     .button-row {
       display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
+      gap: 6px;
+      flex-wrap: nowrap;
+      justify-content: space-between;
     }
 
     .button-row button,
     .button-row a {
-      flex: 1;
-      min-width: 100px;
+      width: 33.33%;
       padding: 10px;
       font-size: 16px;
       text-align: center;
@@ -104,11 +103,11 @@
       display: flex;
     }
 
-    .result-cell.double-width {
-      width: 66.66%;
+    .result-cell.half-width {
+      width: 50%;
     }
 
-    .result-cell.align-right {
+    .result-cell.justify-end {
       justify-content: flex-end;
     }
 
@@ -128,8 +127,14 @@
       .input-row {
         flex-direction: column;
       }
+
       .button-row {
         flex-direction: column;
+      }
+
+      .button-row button,
+      .button-row a {
+        width: 100%;
       }
     }
   </style>
@@ -206,8 +211,8 @@
               <div class="result-cell"><span>顏色：</span>${entry.color}</div>
               <div class="result-cell"><span>代碼：</span>${entry.code}</div>
               <div class="result-cell"><span>板數：</span>${entry.boards}</div>
-              <div class="result-cell double-width"><span>板號：</span>${entry.board}</div>
-              <div class="result-cell align-right"><span>數量：</span>${entry.boxes}</div>
+              <div class="result-cell half-width"><span>板號：</span>${entry.board}</div>
+              <div class="result-cell half-width justify-end"><span>數量：</span>${entry.boxes}</div>
             </div>
           </div>
         `;
@@ -236,7 +241,9 @@
         qrbox: { width: 270, height: 270 }
       },
       qrCodeMessage => {
-        document.getElementById("workOrder").value = qrCodeMessage;
+        const input = document.getElementById("workOrder");
+        input.value = qrCodeMessage;
+        input.blur(); // ← 自動關閉鍵盤
         searchColor();
       },
       errorMessage => {
