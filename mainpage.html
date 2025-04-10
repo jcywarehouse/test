@@ -212,12 +212,17 @@
 
   function manualSearch() {
     searchColor();
-    document.getElementById('workOrder').focus(); // 手動查詢才聚焦
+    const input = document.getElementById('workOrder');
+    input.value = '';        // 清空
+    input.focus();           // 聚焦
   }
 
   document.getElementById('workOrder').addEventListener('keydown', function (event) {
     if (event.key === 'Enter') {
       searchColor();
+      const input = document.getElementById('workOrder');
+      input.value = '';
+      input.focus();
     }
   });
 
@@ -225,9 +230,9 @@
     const input = e.target;
     if (input.value.length === 13) {
       setTimeout(() => {
-        input.blur();
-        document.activeElement?.blur();
         searchColor();
+        input.value = '';
+        input.focus();
         document.getElementById("color-result").scrollIntoView({ behavior: "smooth" });
       }, 100);
     }
@@ -241,9 +246,9 @@
       qrCodeMessage => {
         const input = document.getElementById("workOrder");
         input.value = qrCodeMessage;
-        input.blur();
-        document.activeElement?.blur();
         searchColor();
+        input.value = '';
+        input.focus();
         document.getElementById("color-result").scrollIntoView({ behavior: "smooth" });
       },
       errorMessage => {
@@ -253,6 +258,11 @@
       console.error("QR Code scanning failed.", err);
     });
   }
+
+  // 首次載入頁面時自動聚焦輸入欄
+  window.addEventListener('load', function () {
+    document.getElementById('workOrder').focus();
+  });
 </script>
 
 </body>
