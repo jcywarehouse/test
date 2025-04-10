@@ -81,7 +81,6 @@
       border-left: 1px solid black;
     }
     .result-cell {
-      width: 33.33%;
       padding: 10px;
       box-sizing: border-box;
       font-size: 18px;
@@ -89,11 +88,14 @@
       border-bottom: 1px solid black;
       display: flex;
     }
-    .result-cell.half-width {
-      width: 50%;
+    .result-cell.third-width {
+      width: 33.33%;
     }
-    .result-cell.justify-end {
-      justify-content: flex-end;
+    .result-cell.two-thirds-width {
+      width: 66.66%;
+    }
+    .result-cell.one-third-width {
+      width: 33.33%;
     }
     .result-cell span {
       font-weight: bold;
@@ -110,120 +112,120 @@
 </head>
 <body>
 
-  <div class="container">
-    <h2>出貨資訊查詢系統</h2>
+<div class="container">
+  <h2>出貨資訊查詢系統</h2>
 
-    <div class="search-section">
-      <label for="workOrder">輸入工單號碼：</label>
-      <input type="text" id="workOrder" placeholder="請輸入工單號碼" autofocus>
+  <div class="search-section">
+    <label for="workOrder">輸入工單號碼：</label>
+    <input type="text" id="workOrder" placeholder="請輸入工單號碼" autofocus>
 
-      <div class="button-row">
-        <button onclick="searchColor()">查詢</button>
-        <button onclick="startQrCodeScanner()">QR掃描</button>
-        <a href="https://jcywarehouse.github.io/test/Search.html">板號查詢</a>
-      </div>
+    <div class="button-row">
+      <button onclick="searchColor()">查詢</button>
+      <button onclick="startQrCodeScanner()">QR掃描</button>
+      <a href="https://jcywarehouse.github.io/test/Search.html">板號查詢</a>
     </div>
-
-    <div id="color-result"></div>
-    <div id="qr-reader"></div>
   </div>
 
-  <script>
-    let workOrderData = {};
-    const API_KEY = 'AIzaSyABHPlKFflpHknURJ21Ftr-2n6M2YTXx3Q';
-    const SPREADSHEET_ID = '1WsAf1SD5vpw8vaWUd_-rF550Mc1qoIjaivDs2Gr3gM4';
-    const RANGE = '工作表1!A:G';
+  <div id="color-result"></div>
+  <div id="qr-reader"></div>
+</div>
 
-    function fetchData() {
-      fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`)
-        .then(response => response.json())
-        .then(data => {
-          workOrderData = {};
-          const rows = data.values;
-          rows.forEach(row => {
-            const [abbr, workOrder, color, code, board, boxes, boards] = row;
-            if (workOrder && color && code) {
-              if (!workOrderData[workOrder.trim()]) {
-                workOrderData[workOrder.trim()] = [];
-              }
-              workOrderData[workOrder.trim()].push({
-                color: color.trim(),
-                code: code.trim(),
-                board: board ? board.trim() : 'N/A',
-                boxes: boxes ? boxes.trim() : 'N/A',
-                boards: boards ? boards.trim() : ''
-              });
+<script>
+  let workOrderData = {};
+  const API_KEY = 'AIzaSyABHPlKFflpHknURJ21Ftr-2n6M2YTXx3Q';
+  const SPREADSHEET_ID = '1WsAf1SD5vpw8vaWUd_-rF550Mc1qoIjaivDs2Gr3gM4';
+  const RANGE = '工作表1!A:G';
+
+  function fetchData() {
+    fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`)
+      .then(response => response.json())
+      .then(data => {
+        workOrderData = {};
+        const rows = data.values;
+        rows.forEach(row => {
+          const [abbr, workOrder, color, code, board, boxes, boards] = row;
+          if (workOrder && color && code) {
+            if (!workOrderData[workOrder.trim()]) {
+              workOrderData[workOrder.trim()] = [];
             }
-          });
-        })
-        .catch(error => console.error('Error fetching data:', error));
-    }
-
-    fetchData();
-    setInterval(fetchData, 30000);
-
-    function searchColor() {
-      const input = document.getElementById('workOrder');
-      const resultDiv = document.getElementById('color-result');
-      const workOrder = input.value.trim();
-
-      if (workOrder in workOrderData) {
-        let resultHtml = `<div class="result-header">工單號碼 ${workOrder}</div>`;
-        const count = workOrderData[workOrder].length;
-        resultHtml += `<div class="result-count">符合的資料有 ${count} 筆</div>`;
-
-        workOrderData[workOrder].forEach(entry => {
-          resultHtml += `
-            <div class="data-block">
-              <div class="result-table">
-                <div class="result-cell"><span>顏色：</span>${entry.color}</div>
-                <div class="result-cell"><span>代碼：</span>${entry.code}</div>
-                <div class="result-cell"><span>板數：</span>${entry.boards}</div>
-                <div class="result-cell half-width"><span>板號：</span>${entry.board}</div>
-                <div class="result-cell half-width justify-end"><span>數量：</span>${entry.boxes}</div>
-              </div>
-            </div>
-          `;
+            workOrderData[workOrder.trim()].push({
+              color: color.trim(),
+              code: code.trim(),
+              board: board ? board.trim() : 'N/A',
+              boxes: boxes ? boxes.trim() : 'N/A',
+              boards: boards ? boards.trim() : ''
+            });
+          }
         });
+      })
+      .catch(error => console.error('Error fetching data:', error));
+  }
 
-        resultDiv.innerHTML = resultHtml;
-      } else {
-        resultDiv.textContent = `找不到工單號碼 ${workOrder} 的資料`;
-      }
+  fetchData();
+  setInterval(fetchData, 30000);
 
-      input.select();
-    }
+  function searchColor() {
+    const input = document.getElementById('workOrder');
+    const resultDiv = document.getElementById('color-result');
+    const workOrder = input.value.trim();
 
-    function startQrCodeScanner() {
-      const html5QrCode = new Html5Qrcode("qr-reader");
-      html5QrCode.start(
-        { facingMode: "environment" },
-        { fps: 20, qrbox: { width: 270, height: 270 } },
-        qrCodeMessage => {
-          const input = document.getElementById("workOrder");
-          input.value = qrCodeMessage;
-          searchColor();
-          input.value = '';
-          input.focus();
-        },
-        errorMessage => {
-          console.warn("QR Code not detected.", errorMessage);
-        }
-      ).catch(err => {
-        console.error("QR Code scanning failed.", err);
+    if (workOrder in workOrderData) {
+      let resultHtml = `<div class="result-header">工單號碼 ${workOrder}</div>`;
+      const count = workOrderData[workOrder].length;
+      resultHtml += `<div class="result-count">符合的資料有 ${count} 筆</div>`;
+
+      workOrderData[workOrder].forEach(entry => {
+        resultHtml += `
+          <div class="data-block">
+            <div class="result-table">
+              <div class="result-cell third-width"><span>顏色：</span>${entry.color}</div>
+              <div class="result-cell third-width"><span>代碼：</span>${entry.code}</div>
+              <div class="result-cell third-width"><span>板數：</span>${entry.boards}</div>
+              <div class="result-cell two-thirds-width"><span>板號：</span>${entry.board}</div>
+              <div class="result-cell one-third-width"><span>數量：</span>${entry.boxes}</div>
+            </div>
+          </div>
+        `;
       });
+
+      resultDiv.innerHTML = resultHtml;
+    } else {
+      resultDiv.textContent = `找不到工單號碼 ${workOrder} 的資料`;
     }
 
-    document.getElementById('workOrder').addEventListener('keydown', function(event) {
-      if (event.key === 'Enter') {
-        searchColor();
-      }
-    });
+    input.select();
+  }
 
-    window.addEventListener('load', function () {
-      document.getElementById('workOrder').focus();
+  function startQrCodeScanner() {
+    const html5QrCode = new Html5Qrcode("qr-reader");
+    html5QrCode.start(
+      { facingMode: "environment" },
+      { fps: 20, qrbox: { width: 270, height: 270 } },
+      qrCodeMessage => {
+        const input = document.getElementById("workOrder");
+        input.value = qrCodeMessage;
+        searchColor();
+        input.value = '';
+        input.focus();
+      },
+      errorMessage => {
+        console.warn("QR Code not detected.", errorMessage);
+      }
+    ).catch(err => {
+      console.error("QR Code scanning failed.", err);
     });
-  </script>
+  }
+
+  document.getElementById('workOrder').addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+      searchColor();
+    }
+  });
+
+  window.addEventListener('load', function () {
+    document.getElementById('workOrder').focus();
+  });
+</script>
 
 </body>
 </html>
