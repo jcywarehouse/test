@@ -39,7 +39,7 @@
 
     .button-row button,
     .button-row a {
-      width: 33.33%;
+      flex: 1 1 0;
       padding: 10px;
       font-size: 16px;
       text-align: center;
@@ -47,6 +47,7 @@
       border-radius: 5px;
       cursor: pointer;
       box-sizing: border-box;
+      min-width: 0;
     }
 
     .button-row a {
@@ -232,6 +233,19 @@
     }
   });
 
+  // ✅ 新增：當輸入滿 13 碼，自動 blur 並查詢
+  document.getElementById('workOrder').addEventListener('input', function(e) {
+    const input = e.target;
+    if (input.value.length === 13) {
+      setTimeout(() => {
+        input.blur();
+        document.activeElement?.blur();
+        document.getElementById("color-result").scrollIntoView({ behavior: "smooth" });
+        searchColor();
+      }, 100);
+    }
+  });
+
   function startQrCodeScanner() {
     const html5QrCode = new Html5Qrcode("qr-reader");
     html5QrCode.start(
@@ -243,7 +257,9 @@
       qrCodeMessage => {
         const input = document.getElementById("workOrder");
         input.value = qrCodeMessage;
-        input.blur(); // ← 自動關閉鍵盤
+        input.blur();
+        document.activeElement?.blur();
+        document.getElementById("color-result").scrollIntoView({ behavior: "smooth" });
         searchColor();
       },
       errorMessage => {
