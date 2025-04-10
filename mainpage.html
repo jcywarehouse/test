@@ -87,15 +87,16 @@
       border-right: 1px solid black;
       border-bottom: 1px solid black;
       display: flex;
+      align-items: center;
     }
     .result-cell.third-width {
       width: 33.33%;
     }
-    .result-cell.two-thirds-width {
-      width: 66.66%;
+    .result-cell.board-cell {
+      width: 70%;
     }
-    .result-cell.one-third-width {
-      width: 33.33%;
+    .result-cell.qty-cell {
+      width: 30%;
     }
     .result-cell span {
       font-weight: bold;
@@ -181,8 +182,8 @@
               <div class="result-cell third-width"><span>顏色：</span>${entry.color}</div>
               <div class="result-cell third-width"><span>代碼：</span>${entry.code}</div>
               <div class="result-cell third-width"><span>板數：</span>${entry.boards}</div>
-              <div class="result-cell two-thirds-width"><span>板號：</span>${entry.board}</div>
-              <div class="result-cell one-third-width"><span>數量：</span>${entry.boxes}</div>
+              <div class="result-cell board-cell"><span>板號：</span>${entry.board}</div>
+              <div class="result-cell qty-cell"><span>數量：</span>${entry.boxes}</div>
             </div>
           </div>
         `;
