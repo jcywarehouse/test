@@ -1,0 +1,46 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>成品盤點系統</title>
+  <style>
+    body {
+      font-family: Microsoft JhengHei, sans-serif;
+      text-align: center;
+      margin-top: 100px;
+    }
+    label {
+      display: block;
+      margin-top: 20px;
+      font-size: 18px;
+    }
+    input {
+      width: 300px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    button {
+      margin-top: 30px;
+      padding: 10px 30px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h2>成品盤點系統</h2>
+  <form action="https://docs.google.com/forms/d/e/1FAIpQLSdBoA5gi7eHVmce9QvVyXm_0B0CUz6C6DKX_9FOCFeiI3OXew/formResponse"
+        method="POST" target="hidden_iframe" onsubmit="submitted=true;">
+    <label for="part">料號：</label>
+    <input type="text" name="entry.522928939" id="part" required>
+
+    <label for="qty">尾數箱數：</label>
+    <input type="number" name="entry.820304417" id="qty" required>
+
+    <br>
+    <button type="submit">儲存</button>
+  </form>
+
+  <iframe name="hidden_iframe" style="display:none;"></iframe>
+</body>
+</html>
