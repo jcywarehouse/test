@@ -73,14 +73,14 @@
   <div class="container">
     <h2>成品盤點系統</h2>
     <form id="dataForm" action="https://docs.google.com/forms/d/e/1FAIpQLSdBoA5gi7eHVmce9QvVyXm_0B0CUz6C6DKX_9FOCFeiI3OXew/formResponse"
-          method="POST" target="hidden_iframe" onsubmit="handleSubmit();">
+          method="POST" target="hidden_iframe">
       <label for="part">料號：</label>
       <input type="text" name="entry.1506120666" id="part" required pattern=".*">
 
       <label for="qty">尾數箱數：</label>
       <input type="text" inputmode="numeric" name="entry.1517289801" id="qty">
 
-      <button type="submit">儲存</button>
+      <button type="submit" id="submitBtn">儲存</button>
     </form>
     <div class="success-message" id="successMsg">✅ 資料已成功送出！</div>
     <iframe name="hidden_iframe" style="display:none;" onload="formSubmitted();"></iframe>
@@ -88,13 +88,26 @@
 
   <script>
     let submitted = false;
-    function handleSubmit() {
-      submitted = true;
-      setTimeout(() => {
-        document.getElementById("dataForm").reset();
-        document.getElementById("successMsg").style.display = "block";
-      }, 500);
-    }
+
+    // 阻止 Enter 鍵觸發表單送出（避免條碼槍 CR 自動提交）
+    document.addEventListener("DOMContentLoaded", function () {
+      const form = document.getElementById("dataForm");
+      form.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" && e.target.tagName === "INPUT") {
+          e.preventDefault();
+        }
+      });
+
+      // 手動監聽提交按鈕的點擊行為
+      document.getElementById("submitBtn").addEventListener("click", function () {
+        submitted = true;
+        setTimeout(() => {
+          form.reset();
+          document.getElementById("successMsg").style.display = "block";
+        }, 500);
+      });
+    });
+
     function formSubmitted() {
       if (submitted) {
         submitted = false;
