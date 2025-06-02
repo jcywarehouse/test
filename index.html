@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>成品盤點系統</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
     body {
       font-family: "Microsoft JhengHei", sans-serif;
       padding: 20px;
@@ -55,8 +53,12 @@
     button:hover {
       background-color: #45a049;
     }
-
-    /* 移除數字箭頭 */
+    .success-message {
+      display: none;
+      color: green;
+      font-weight: bold;
+      margin-top: 20px;
+    }
     input::-webkit-outer-spin-button,
     input::-webkit-inner-spin-button {
       -webkit-appearance: none;
@@ -70,17 +72,34 @@
 <body>
   <div class="container">
     <h2>成品盤點系統</h2>
-    <form action="https://docs.google.com/forms/d/e/1FAIpQLSdBoA5gi7eHVmce9QvVyXm_0B0CUz6C6DKX_9FOCFeiI3OXew/formResponse"
-          method="POST" target="hidden_iframe" onsubmit="submitted=true;">
+    <form id="dataForm" action="https://docs.google.com/forms/d/e/1FAIpQLSdBoA5gi7eHVmce9QvVyXm_0B0CUz6C6DKX_9FOCFeiI3OXew/formResponse"
+          method="POST" target="hidden_iframe" onsubmit="handleSubmit();">
       <label for="part">料號：</label>
       <input type="text" name="entry.522928939" id="part" required pattern=".*">
 
       <label for="qty">尾數箱數：</label>
-      <input type="text" inputmode="numeric" pattern="\d*" name="entry.820304417" id="qty">
+      <input type="text" inputmode="numeric" pattern="\\d*" name="entry.820304417" id="qty">
 
       <button type="submit">儲存</button>
     </form>
-    <iframe name="hidden_iframe" style="display:none;"></iframe>
+    <div class="success-message" id="successMsg">✅ 資料已成功送出！</div>
+    <iframe name="hidden_iframe" style="display:none;" onload="formSubmitted();"></iframe>
   </div>
+
+  <script>
+    let submitted = false;
+    function handleSubmit() {
+      submitted = true;
+      setTimeout(() => {
+        document.getElementById("dataForm").reset();
+        document.getElementById("successMsg").style.display = "block";
+      }, 500);
+    }
+    function formSubmitted() {
+      if (submitted) {
+        submitted = false;
+      }
+    }
+  </script>
 </body>
 </html>
