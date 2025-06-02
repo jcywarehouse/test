@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>成品盤點系統</title>
+  <title>成品庫存紀錄系統</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -89,21 +89,36 @@
   <script>
     let submitted = false;
 
-    // 阻止 Enter 鍵觸發表單送出（避免條碼槍 CR 自動提交）
     document.addEventListener("DOMContentLoaded", function () {
       const form = document.getElementById("dataForm");
-      form.addEventListener("keydown", function (e) {
-        if (e.key === "Enter" && e.target.tagName === "INPUT") {
+      const partInput = document.getElementById("part");
+      const qtyInput = document.getElementById("qty");
+
+      // 頁面載入就聚焦在料號欄位
+      partInput.focus();
+
+      // 若按 Enter 並聚焦在料號欄，則跳到尾數箱數
+      partInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          qtyInput.focus();
+        }
+      });
+
+      // 若按 Enter 並聚焦在尾數欄，阻止預設（避免送出）
+      qtyInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
           e.preventDefault();
         }
       });
 
-      // 手動監聽提交按鈕的點擊行為
+      // 點儲存按鈕時設定提交狀態
       document.getElementById("submitBtn").addEventListener("click", function () {
         submitted = true;
         setTimeout(() => {
           form.reset();
           document.getElementById("successMsg").style.display = "block";
+          partInput.focus(); // 重設後聚焦回料號
         }, 500);
       });
     });
