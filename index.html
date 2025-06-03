@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>成品庫存紀錄系統</title>
   <style>
     * { box-sizing: border-box; }
     body {
       font-family: "Microsoft JhengHei", sans-serif;
       padding: 20px;
-      margin: 0;
       background-color: #f9f9f9;
     }
     .container {
@@ -38,13 +37,13 @@
       border: 1px solid #ccc;
       border-radius: 5px;
     }
-    .checkbox-group {
+    .radio-group {
       display: flex;
       justify-content: center;
       gap: 15px;
       margin-bottom: 10px;
     }
-    .checkbox-group label {
+    .radio-group label {
       font-weight: normal;
     }
     button {
@@ -70,26 +69,30 @@
 <body>
   <div class="container">
     <h2>成品庫存紀錄系統</h2>
-    <form id="dataForm" action="https://docs.google.com/forms/d/e/1FAIpQLSdBoA5gi7eHVmce9QvVyXm_0B0CUz6C6DKX_9FOCFeiI3OXew/formResponse"
-          method="POST" target="hidden_iframe">
-      <div class="checkbox-group">
-        <label><input type="checkbox" id="checkB"> B架位</label>
-        <label><input type="checkbox" id="checkLine"> 線邊</label>
-        <label><input type="checkbox" id="checkProd"> 成品倉</label>
+    <form id="dataForm"
+          action="https://docs.google.com/forms/d/e/1FAIpQLSdBoA5gi7eHVmce9QvVyXm_0B0CUz6C6DKX_9FOCFeiI3OXew/formResponse"
+          method="POST"
+          target="hidden_iframe">
+      <div class="radio-group">
+        <label><input type="radio" name="locationType" value="B架位" id="radioB"> B架位</label>
+        <label><input type="radio" name="locationType" value="線邊" id="radioLine"> 線邊</label>
+        <label><input type="radio" name="locationType" value="成品倉" id="radioProd"> 成品倉</label>
       </div>
 
       <label for="part">料號標籤：</label>
-      <input type="text" name="entry.1506120666" id="part" required pattern=".*">
+      <input type="text" name="entry.1506120666" id="part" required pattern=".*" />
 
       <label for="qty">尾數箱數或盒數(滿板空白)：</label>
-      <input type="text" inputmode="numeric" name="entry.1517289801" id="qty">
+      <input type="text" inputmode="numeric" name="entry.1517289801" id="qty" />
 
-      <label for="position">儲位(僅B架或自動套用)：</label>
-      <input type="text" id="position">
-      <input type="hidden" name="entry.904480318" id="positionHidden">
+      <label for="position">儲位 (僅B架需手動輸入)：</label>
+      <input type="text" id="position" />
+
+      <input type="hidden" name="entry.904480318" id="positionHidden" />
 
       <button type="submit" id="submitBtn">儲存</button>
     </form>
+
     <div class="success-message" id="successMsg">✅ 資料已成功送出！</div>
     <iframe name="hidden_iframe" style="display:none;" onload="formSubmitted();"></iframe>
   </div>
@@ -103,39 +106,49 @@
       const qtyInput = document.getElementById("qty");
       const positionInput = document.getElementById("position");
       const positionHidden = document.getElementById("positionHidden");
-      const checkB = document.getElementById("checkB");
-      const checkLine = document.getElementById("checkLine");
-      const checkProd = document.getElementById("checkProd");
 
+      const radioB = document.getElementById("radioB");
+      const radioLine = document.getElementById("radioLine");
+      const radioProd = document.getElementById("radioProd");
+
+      // 聚焦第一欄
       partInput.focus();
 
+      // Enter 換欄位
       partInput.addEventListener("keydown", function (e) {
         if (e.key === "Enter") {
           e.preventDefault();
           qtyInput.focus();
         }
       });
-
       qtyInput.addEventListener("keydown", function (e) {
         if (e.key === "Enter") {
           e.preventDefault();
         }
       });
 
-      document.getElementById("submitBtn").addEventListener("click", function () {
-        // 儲位填入邏輯
-        if (checkLine.checked) {
-          positionInput.value = "JA14#temp";
-        } else if (checkProd.checked) {
-          positionInput.value = "JA14#P11";
-        }
+      // 單選互斥 (保險設計，實際 radio 已自帶互斥功能)
+      [radioB, radioLine, radioProd].forEach(radio => {
+        radio.addEventListener("change", () => {
+          if (radio !== radioB) positionInput.value = ""; // 只允許 B 架輸入顯示
+        });
+      });
 
-        // 將顯示的儲位填入隱藏 input
-        positionHidden.value = positionInput.value;
+      // 提交前處理儲位
+      document.getElementById("submitBtn").addEventListener("click", function () {
+        if (radioB.checked) {
+          positionHidden.value = positionInput.value;
+        } else if (radioLine.checked) {
+          positionHidden.value = "JA14#temp";
+        } else if (radioProd.checked) {
+          positionHidden.value = "JA14#P11";
+        } else {
+          positionHidden.value = "";
+        }
 
         submitted = true;
 
-        // 清空部分欄位，保留儲位與勾選
+        // 清空料號與箱數，保留勾選與儲位
         setTimeout(() => {
           partInput.value = "";
           qtyInput.value = "";
