@@ -73,9 +73,9 @@
     <form id="dataForm" action="https://docs.google.com/forms/d/e/1FAIpQLSdBoA5gi7eHVmce9QvVyXm_0B0CUz6C6DKX_9FOCFeiI3OXew/formResponse"
           method="POST" target="hidden_iframe">
       <div class="checkbox-group">
-        <label><input type="checkbox" name="location" value="B架位" id="checkB"> B架位</label>
-        <label><input type="checkbox" name="location" value="線邊"> 線邊</label>
-        <label><input type="checkbox" name="location" value="成品倉"> 成品倉</label>
+        <label><input type="checkbox" id="checkB"> B架位</label>
+        <label><input type="checkbox" id="checkLine"> 線邊</label>
+        <label><input type="checkbox" id="checkProd"> 成品倉</label>
       </div>
 
       <label for="part">料號標籤：</label>
@@ -84,7 +84,7 @@
       <label for="qty">尾數箱數或盒數(滿板空白)：</label>
       <input type="text" inputmode="numeric" name="entry.1517289801" id="qty">
 
-      <label for="position">儲位(僅B架要刷)：</label>
+      <label for="position">儲位(僅B架或自動套用)：</label>
       <input type="text" id="position">
       <input type="hidden" name="entry.904480318" id="positionHidden">
 
@@ -104,6 +104,8 @@
       const positionInput = document.getElementById("position");
       const positionHidden = document.getElementById("positionHidden");
       const checkB = document.getElementById("checkB");
+      const checkLine = document.getElementById("checkLine");
+      const checkProd = document.getElementById("checkProd");
 
       partInput.focus();
 
@@ -121,19 +123,22 @@
       });
 
       document.getElementById("submitBtn").addEventListener("click", function () {
-        if (checkB.checked) {
-          positionHidden.value = positionInput.value;
-        } else {
-          positionHidden.value = "";
+        // 儲位填入邏輯
+        if (checkLine.checked) {
+          positionInput.value = "JA14#temp";
+        } else if (checkProd.checked) {
+          positionInput.value = "JA14#P11";
         }
+
+        // 將顯示的儲位填入隱藏 input
+        positionHidden.value = positionInput.value;
 
         submitted = true;
 
-        // 只清空文字欄位，不清除勾選框
+        // 清空部分欄位，保留儲位與勾選
         setTimeout(() => {
           partInput.value = "";
           qtyInput.value = "";
-          positionInput.value = "";
           document.getElementById("successMsg").style.display = "block";
           partInput.focus();
         }, 500);
