@@ -39,11 +39,12 @@
       border-radius: 5px;
     }
     .checkbox-group {
-      text-align: center;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
       margin-bottom: 10px;
     }
     .checkbox-group label {
-      margin: 0 10px;
       font-weight: normal;
     }
     button {
@@ -77,7 +78,7 @@
         <label><input type="checkbox" name="location" value="成品倉"> 成品倉</label>
       </div>
 
-      <label for="part">棧板標料號：</label>
+      <label for="part">料號標籤：</label>
       <input type="text" name="entry.1506120666" id="part" required pattern=".*">
 
       <label for="qty">尾數箱數或盒數(滿板空白)：</label>
@@ -123,12 +124,16 @@
         if (checkB.checked) {
           positionHidden.value = positionInput.value;
         } else {
-          positionHidden.value = ""; // 不送出儲位
+          positionHidden.value = "";
         }
 
         submitted = true;
+
+        // 只清空文字欄位，不清除勾選框
         setTimeout(() => {
-          form.reset();
+          partInput.value = "";
+          qtyInput.value = "";
+          positionInput.value = "";
           document.getElementById("successMsg").style.display = "block";
           partInput.focus();
         }, 500);
