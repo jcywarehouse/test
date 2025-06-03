@@ -14,58 +14,55 @@
     }
     .container {
       max-width: 400px;
-      margin: 50px auto;
+      margin: 30px auto;
       background: white;
-      padding: 30px;
+      padding: 25px;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      text-align: center;
     }
     h2 {
-      margin-bottom: 30px;
-      font-size: 24px;
+      text-align: center;
+      margin-bottom: 15px;
     }
     label {
-      font-size: 16px;
+      font-weight: bold;
       display: block;
-      text-align: left;
-      margin-bottom: 5px;
       margin-top: 15px;
+      margin-bottom: 5px;
     }
-    input {
+    input[type="text"], input[type="number"] {
       width: 100%;
-      padding: 12px;
+      padding: 10px;
       font-size: 16px;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
       border: 1px solid #ccc;
       border-radius: 5px;
     }
+    .checkbox-group {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .checkbox-group label {
+      margin: 0 10px;
+      font-weight: normal;
+    }
     button {
-      padding: 12px 25px;
+      width: 100%;
+      padding: 12px;
       font-size: 18px;
       background-color: #4CAF50;
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      margin-top: 20px;
-    }
-    button:hover {
-      background-color: #45a049;
+      margin-top: 15px;
     }
     .success-message {
       display: none;
       color: green;
       font-weight: bold;
-      margin-top: 20px;
-    }
-    input::-webkit-outer-spin-button,
-    input::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-    input[type=number] {
-      -moz-appearance: textfield;
+      text-align: center;
+      margin-top: 15px;
     }
   </style>
 </head>
@@ -74,11 +71,21 @@
     <h2>成品庫存紀錄系統</h2>
     <form id="dataForm" action="https://docs.google.com/forms/d/e/1FAIpQLSdBoA5gi7eHVmce9QvVyXm_0B0CUz6C6DKX_9FOCFeiI3OXew/formResponse"
           method="POST" target="hidden_iframe">
+      <div class="checkbox-group">
+        <label><input type="checkbox" name="location" value="B架位" id="checkB"> B架位</label>
+        <label><input type="checkbox" name="location" value="線邊"> 線邊</label>
+        <label><input type="checkbox" name="location" value="成品倉"> 成品倉</label>
+      </div>
+
       <label for="part">棧板標料號：</label>
       <input type="text" name="entry.1506120666" id="part" required pattern=".*">
 
       <label for="qty">尾數箱數或盒數(滿板空白)：</label>
       <input type="text" inputmode="numeric" name="entry.1517289801" id="qty">
+
+      <label for="position">儲位(僅B架要刷)：</label>
+      <input type="text" id="position">
+      <input type="hidden" name="entry.904480318" id="positionHidden">
 
       <button type="submit" id="submitBtn">儲存</button>
     </form>
@@ -93,11 +100,12 @@
       const form = document.getElementById("dataForm");
       const partInput = document.getElementById("part");
       const qtyInput = document.getElementById("qty");
+      const positionInput = document.getElementById("position");
+      const positionHidden = document.getElementById("positionHidden");
+      const checkB = document.getElementById("checkB");
 
-      // 頁面載入就聚焦在料號欄位
       partInput.focus();
 
-      // 若按 Enter 並聚焦在料號欄，則跳到尾數箱數
       partInput.addEventListener("keydown", function (e) {
         if (e.key === "Enter") {
           e.preventDefault();
@@ -105,28 +113,30 @@
         }
       });
 
-      // 若按 Enter 並聚焦在尾數欄，阻止預設（避免送出）
       qtyInput.addEventListener("keydown", function (e) {
         if (e.key === "Enter") {
           e.preventDefault();
         }
       });
 
-      // 點儲存按鈕時設定提交狀態
       document.getElementById("submitBtn").addEventListener("click", function () {
+        if (checkB.checked) {
+          positionHidden.value = positionInput.value;
+        } else {
+          positionHidden.value = ""; // 不送出儲位
+        }
+
         submitted = true;
         setTimeout(() => {
           form.reset();
           document.getElementById("successMsg").style.display = "block";
-          partInput.focus(); // 重設後聚焦回料號
+          partInput.focus();
         }, 500);
       });
     });
 
     function formSubmitted() {
-      if (submitted) {
-        submitted = false;
-      }
+      if (submitted) submitted = false;
     }
   </script>
 </body>
